@@ -4,15 +4,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-cards:
+  add-cards:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Criar cards no projeto
+      - name: Criar cards no GitHub Projects
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PAT_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           script: |
-            const items = [
+            const cards = [
               "Finalizar configuração de domínio no Registro.br",
               "Apontar DNS para Vercel (ns1/ns2.vercel-dns.com)",
               "Verificar propagação total do domínio",
@@ -22,24 +23,23 @@ jobs:
               "Aplicar cores e ícones definitivos",
               "Adicionar efeitos (hover, som, animação leve)",
               "Criar cards visuais dos módulos ERP na tela principal",
+              "Vendas, Compras, PCP, Expedição, Fiscal, Financeiro etc",
               "Criar tela de login com autenticação JWT",
               "Backend Django + DRF",
               "Frontend com validação e roteamento"
             ];
 
-            const projectNumber = 1; // número do seu projeto
-            const org = context.repo.owner;
+            const owner = "Wigorb";
+            const projectNumber = 1;
 
-            const { data: projects } = await github.rest.projects.listForUser({ username: org });
+            const { data: projects } = await github.rest.projects.listForUser({ username: owner });
             const project = projects.find(p => p.number === projectNumber);
             const columns = await github.rest.projects.listColumns({ project_id: project.id });
-            const targetColumn = columns.data.find(c => c.name.toLowerCase().includes('backlog'));
+            const backlog = columns.data.find(c => c.name.toLowerCase().includes("pendência") || c.name.toLowerCase().includes("backlog"));
 
-            for (const title of items) {
+            for (const card of cards) {
               await github.rest.projects.createCard({
-                column_id: targetColumn.id,
-                note: title,
+                column_id: backlog.id,
+                note: `📌 ${card}`
               });
             }
-
-
