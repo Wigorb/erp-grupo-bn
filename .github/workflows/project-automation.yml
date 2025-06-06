@@ -1,2 +1,19 @@
-add project automation
+name: Project Automation
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  automate-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move issue to "Pendência"
+        uses: actions/add-to-project@v1
+        with:
+          project-url: https://github.com/users/Wigorb/projects/1
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          column-name: Pendência
 
