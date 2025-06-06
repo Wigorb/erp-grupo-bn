@@ -1,19 +1,45 @@
-name: Project Automation
+name: Project Cards Automation
 
 on:
-  issues:
-    types: [opened, edited, reopened]
-  pull_request:
-    types: [opened, edited, reopened]
+  workflow_dispatch:
 
 jobs:
-  automate-project:
+  create-cards:
     runs-on: ubuntu-latest
     steps:
-      - name: Move issue to "Pendência"
-        uses: actions/add-to-project@v1
+      - name: Criar cards no projeto
+        uses: actions/github-script@v7
         with:
-          project-url: https://github.com/users/Wigorb/projects/1
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          column-name: Pendência
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            const items = [
+              "Finalizar configuração de domínio no Registro.br",
+              "Apontar DNS para Vercel (ns1/ns2.vercel-dns.com)",
+              "Verificar propagação total do domínio",
+              "Ajustar favicon e título do painel ERP",
+              "Atualizar título da aba e ícone no layout",
+              "Concluir estilização da mandala de módulos",
+              "Aplicar cores e ícones definitivos",
+              "Adicionar efeitos (hover, som, animação leve)",
+              "Criar cards visuais dos módulos ERP na tela principal",
+              "Criar tela de login com autenticação JWT",
+              "Backend Django + DRF",
+              "Frontend com validação e roteamento"
+            ];
+
+            const projectNumber = 1; // número do seu projeto
+            const org = context.repo.owner;
+
+            const { data: projects } = await github.rest.projects.listForUser({ username: org });
+            const project = projects.find(p => p.number === projectNumber);
+            const columns = await github.rest.projects.listColumns({ project_id: project.id });
+            const targetColumn = columns.data.find(c => c.name.toLowerCase().includes('backlog'));
+
+            for (const title of items) {
+              await github.rest.projects.createCard({
+                column_id: targetColumn.id,
+                note: title,
+              });
+            }
+
 
