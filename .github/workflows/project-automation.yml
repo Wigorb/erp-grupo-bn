@@ -1,7 +1,9 @@
 name: Project Cards Automation
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   add-cards:
@@ -43,3 +45,4 @@ jobs:
                 note: `📌 ${card}`
               });
             }
+
